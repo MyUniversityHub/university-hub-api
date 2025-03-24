@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RefreshTokenRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Repositories\Contracts\RoleRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -98,6 +99,49 @@ class AuthenticateController extends Controller
 
         $role = $this->roleRepository->find($roleId);
         return $this->successResponse(["info" => $user, "role" => $role], 'Authenticated use info');
+    }
+
+    public function refreshToken(RefreshTokenRequest $request): JsonResponse
+    {
+        $refreshToken = $request->input('refresh_token');
+        $response = passportResponse(null, null, 'refresh_token', $refreshToken);
+        if ($response->failed()) {
+            return $this->errorResponse('Refreshed token Failed.', Response::HTTP_UNAUTHORIZED, $response->json());
+        }
+        return $this->successResponse($response->json(), 'Refreshed token.');
+    }
+
+    public function changePassword(ChangePasswordRequest $request): JsonResponse
+    {
+
+        $user = authUser();
+        $currentPassword = $request->input('current_password');
+        $newPassword = $request->input('new_password');
+        // Check if the current password matches
+        if (!Hash::check($currentPassword, $user->getPassword())) {
+            return $this->errorResponse('Mật khẩu hiện tại không chính xác!', Response::HTTP_UNAUTHORIZED, 'Error change password');
+        }
+
+        // Update password
+        try {
+            $this->userRepository->update($user->User::id(), ['password' => Hash::make($newPassword)]);
+        } catch (\Exception $exception) {
+            return $this->errorResponse('Thay đổi mật khẩu thất bại!', Response::HTTP_BAD_REQUEST, $exception->getMessage());
+        }
+
+        return $this->successResponse('', 'Thay đổi mật khẩu thành công!');
+    }
+
+    public function updateProfile(UpdateProfileRequest $request): JsonResponse
+    {
+        $user = authUser();
+        try {
+            $user = $this->userRepository->update($user->User::id(), $request->validated());
+            return $this->successResponse($user, 'Thay đổi thông tin tài khoản thành công!');
+        } catch (\Exception $exception) {
+            return $this->errorResponse($exception->getMessage(), $exception->getCode());
+        }
+
     }
 
 }

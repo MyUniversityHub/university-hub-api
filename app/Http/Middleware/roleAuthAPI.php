@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Role;
 use App\Repositories\Contracts\RoleRepositoryInterface;
 use App\Traits\ApiResponse;
 use Closure;
@@ -27,7 +28,7 @@ class roleAuthAPI
         $roleId = $user->getRoleId();
 
         $role = $this->roleRepository->find($roleId);
-        if ($role->getStatus() == ROLE_STATUS_ACTIVE) {
+        if ($role->{Role::active()} == ROLE_STATUS_ACTIVE) {
             return $next($request);
         }
         return $this->errorResponse('Tài khoản này không có quyền sử dụng mục này!', Response::HTTP_FORBIDDEN, 'This API Unauthorized');
