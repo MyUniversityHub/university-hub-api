@@ -14,10 +14,4 @@ class UserServiceImpl implements UserServiceInterface
 
     }
 
-    public function create(array $data)
-    {
-        return "OK";
-    }
-
-
 }
