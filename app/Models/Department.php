@@ -8,6 +8,7 @@ class Department extends BaseModel
 {
     protected $table = 'departments';
     protected $primaryKey = 'id';
+    const TABLE_NAME = 'departments';
     protected $fillable = [
         'id',
         'code',

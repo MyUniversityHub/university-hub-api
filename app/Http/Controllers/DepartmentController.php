@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DepartmentRequest;
 use App\Models\Department;
 use App\Repositories\Contracts\DepartmentRepositoryInterface;
 use App\Traits\ApiResponse;
@@ -41,10 +42,10 @@ class DepartmentController extends Controller
         return $this->successResponse($response, 'Cập nhật trạng thái khoa thành công!');
     }
 
-    public function create(Request $request)
+    public function create(DepartmentRequest $request)
     {
         try {
-            $data = $request->all();
+            $data = $request->validated();
             $response = $this->departmentRepository->create($data);
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
@@ -52,7 +53,7 @@ class DepartmentController extends Controller
         return $this->successResponse($response, 'Thêm mới khoa thành công !');
     }
 
-    public function update(Request $request, $id)
+    public function update(DepartmentRequest $request, $id)
     {
         try {
             $data = $request->all();
