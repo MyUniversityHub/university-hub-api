@@ -5,17 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Department extends BaseModel
+class Major extends BaseModel
 {
     use SoftDeletes;
-    protected $table = 'departments';
+    protected $table = 'majors';
     protected $primaryKey = 'id';
-    const TABLE_NAME = 'departments';
+    const TABLE_NAME = 'majors';
     protected $fillable = [
         'id',
         'code',
         'name',
-        'description',
+        'department_id',
         'active',
         'created_at',
         'updated_at',
@@ -26,7 +26,7 @@ class Department extends BaseModel
         'id' => 'id',
         'code' => 'code',
         'name' => 'name',
-        'description' => 'description',
+        'departmentId' => 'department_id',
         'active' => 'active',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at',

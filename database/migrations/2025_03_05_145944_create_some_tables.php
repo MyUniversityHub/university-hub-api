@@ -19,6 +19,8 @@ return new class extends Migration {
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('code', 50);
+            $table->text('description');
             $table->boolean('active')->default(true);
             $table->timestamps();
             $table->softDeletes();
@@ -27,7 +29,8 @@ return new class extends Migration {
         Schema::create('majors', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Tên ngành
-            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade'); // Liên kết với bảng departments
+            $table->foreignId('department_id')->nullable()->constrained('departments')->onDelete('set null'); // Liên kết với bảng departments
+            $table->string('code', 50);
             $table->boolean('active')->default(true); // Trạng thái kích hoạt
             $table->timestamps();
             $table->softDeletes(); // Hỗ trợ soft delete
@@ -36,7 +39,7 @@ return new class extends Migration {
         Schema::create('classes', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('major_id')->constrained('majors')->onDelete('cascade');
+            $table->foreignId('major_id')->nullable()->constrained('majors')->onDelete('set null');
             $table->boolean('active')->default(true); // Trạng thái kích hoạt
             $table->timestamps();
             $table->softDeletes();
