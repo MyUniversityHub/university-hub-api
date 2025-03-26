@@ -31,6 +31,17 @@ class DepartmentController extends Controller
         return $this->successResponse($redirects, 'Danh sách khoa');
     }
 
+    public function getDepartmentsActive(Request $request)
+    {
+        try {
+            $redirects = $this->departmentRepository->listWithFilter($request)->where('active', DEPARTMENT_STATUS_ACTIVE)->get();
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
+        }
+
+        return $this->successResponse($redirects, 'Danh sách khoa');
+    }
+
     public function updateActive(Request $request, $id)
     {
         $active = $request->get('active');
@@ -45,7 +56,7 @@ class DepartmentController extends Controller
     public function create(DepartmentRequest $request)
     {
         try {
-            $data = $request->validated();
+            $data = $request->all();
             $response = $this->departmentRepository->create($data);
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
