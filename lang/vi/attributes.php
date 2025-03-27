@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Classes;
 use App\Models\Department;
 use App\Models\Major;
 
@@ -15,5 +16,10 @@ return [
         Major::name() => 'Tên chuyên ngành',
         Major::departmentId() => 'Mã khoa',
         Major::active() => 'Trạng thái',
+    ],
+    'classes' => [
+        Classes::name() => 'Tên lớp',
+        Classes::courseYear() => 'Năm học',
+        Classes::advisorName() => 'Tên giảng viên chủ nhiệm',
     ],
 ];
