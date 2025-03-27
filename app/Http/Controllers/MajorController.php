@@ -32,6 +32,17 @@ class MajorController extends Controller
         return $this->successResponse($redirects, 'Danh sách chuyên ngành');
     }
 
+    public function getMajorsActive(Request $request)
+    {
+        try {
+            $redirects = $this->majorRepository->listWithFilter($request)->where('active', MAJOR_STATUS_ACTIVE)->get();
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
+        }
+
+        return $this->successResponse($redirects, 'Danh sách khoa');
+    }
+
     public function updateActive(Request $request, $id)
     {
         $active = $request->get('active');

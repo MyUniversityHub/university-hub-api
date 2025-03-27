@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClassesController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\MajorController;
 use Illuminate\Support\Facades\Route;
@@ -25,10 +26,18 @@ Route::group(['middleware' => ['auth:api', ROLE_PERMISSION_MIDDLEWARE]], functio
         });
         Route::group(['prefix' => 'majors'], function () {
             Route::get('/', [MajorController::class, 'index']);
+            Route::get('/active', [MajorController::class, 'getMajorsActive']);
             Route::put('/{id}/update-status', [MajorController::class, 'updateActive']);
             Route::post('/', [MajorController::class, 'create']);
             Route::put('/{id}', [MajorController::class, 'update']);
             Route::delete('/bulk-delete', [MajorController::class, 'bulkDelete']);
+        });
+        Route::group(['prefix' => 'classes'], function () {
+            Route::get('/', [ClassesController::class, 'index']);
+            Route::put('/{id}/update-status', [ClassesController::class, 'updateActive']);
+            Route::post('/', [ClassesController::class, 'create']);
+            Route::put('/{id}', [ClassesController::class, 'update']);
+            Route::delete('/bulk-delete', [ClassesController::class, 'bulkDelete']);
         });
     });
     Route::group(['prefix' => 'student'], function () {
