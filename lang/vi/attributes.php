@@ -3,6 +3,7 @@
 use App\Models\Classes;
 use App\Models\Department;
 use App\Models\Major;
+use App\Models\User;
 
 return [
     'departments' => [
@@ -21,5 +22,12 @@ return [
         Classes::name() => 'Tên lớp',
         Classes::courseYear() => 'Năm học',
         Classes::advisorName() => 'Tên giảng viên chủ nhiệm',
+    ],
+    'users' => [
+        'name' => 'Tên người dùng',
+        'user_name' => 'Tên tài khoản',
+        'email' => 'Email',
+        'password' => 'Mật khẩu',
+        'role_id' => "Quyền",
     ],
 ];

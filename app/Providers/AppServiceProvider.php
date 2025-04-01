@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Classes;
+use App\Models\Teacher;
 use App\Models\User;
 use App\Observers\UserObserver;
 use App\Repositories\Contracts\ClassesRepositoryInterface;
@@ -10,12 +11,14 @@ use App\Repositories\Contracts\DepartmentRepositoryInterface;
 use App\Repositories\Contracts\MajorRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
 use App\Repositories\Contracts\StudentRepositoryInterface;
+use App\Repositories\Contracts\TeacherRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\ClassesRepositoryImpl;
 use App\Repositories\Eloquent\DepartmentRepositoryImpl;
 use App\Repositories\Eloquent\MajorRepositoryImpl;
 use App\Repositories\Eloquent\RoleRepositoryImpl;
 use App\Repositories\Eloquent\StudentRepositoryImpl;
+use App\Repositories\Eloquent\TeacherRepositoryImpl;
 use App\Repositories\Eloquent\UserRepositoryImpl;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
@@ -36,7 +39,8 @@ class AppServiceProvider extends ServiceProvider
             StudentRepositoryInterface::class => StudentRepositoryImpl::class,
             DepartmentRepositoryInterface::class => DepartmentRepositoryImpl::class,
             MajorRepositoryInterface::class => MajorRepositoryImpl::class,
-            ClassesRepositoryInterface::class => ClassesRepositoryImpl::class
+            ClassesRepositoryInterface::class => ClassesRepositoryImpl::class,
+            TeacherRepositoryInterface::class => TeacherRepositoryImpl::class
         ];
     }
     public function register(): void

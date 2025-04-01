@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RefreshTokenRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Models\Student;
 use App\Repositories\Contracts\RoleRepositoryInterface;
+use App\Repositories\Contracts\StudentRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -21,7 +23,8 @@ class AuthenticateController extends Controller
     use ApiResponse;
     public function __construct(
         public UserRepositoryInterface $userRepository,
-        public RoleRepositoryInterface $roleRepository
+        public RoleRepositoryInterface $roleRepository,
+        public StudentRepositoryInterface $studentRepository
     )
     {
     }
@@ -32,14 +35,20 @@ class AuthenticateController extends Controller
             $userData = $request->all();
             $userData['password'] = Hash::make($userData['password']);
             $userData['active'] = 1;
-            $response = $this->userRepository->create($userData);
-            if (!$response) {
+            $user = $this->userRepository->create($userData);
+            if (!$user) {
                 return $this->errorResponse('Đăng ký tài khoản thất bại!', Response::HTTP_UNAUTHORIZED, 'Error register');
+            }
+            if($user->role_id === 'STUDENT') {
+                $this->studentRepository->create([
+                    'user_id' => $user->id,
+
+                ]);
             }
         } catch (\Exception $e) {
             return $this->errorResponse('Đăng ký tài khoản thất bại!', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
-        return $this->successResponse($response, 'Tài khoản đã được đăng ký thành công!');
+        return $this->successResponse($user, 'Tài khoản đã được đăng ký thành công!');
     }
 
     public function login(LoginRequest $request)
