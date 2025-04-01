@@ -19,6 +19,8 @@ return new class extends Migration {
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('code', 50);
+            $table->text('description');
             $table->boolean('active')->default(true);
             $table->timestamps();
             $table->softDeletes();
@@ -27,7 +29,8 @@ return new class extends Migration {
         Schema::create('majors', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Tên ngành
-            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade'); // Liên kết với bảng departments
+            $table->foreignId('department_id')->nullable()->constrained('departments')->onDelete('set null'); // Liên kết với bảng departments
+            $table->string('code', 50);
             $table->boolean('active')->default(true); // Trạng thái kích hoạt
             $table->timestamps();
             $table->softDeletes(); // Hỗ trợ soft delete
@@ -36,7 +39,10 @@ return new class extends Migration {
         Schema::create('classes', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('major_id')->constrained('majors')->onDelete('cascade');
+            $table->foreignId('major_id')->nullable()->constrained('majors')->onDelete('set null');
+            $table->string('course_year', 50);
+            $table->string('advisor_name', 120);
+            $table->integer('student_count')->default(0);
             $table->boolean('active')->default(true); // Trạng thái kích hoạt
             $table->timestamps();
             $table->softDeletes();
@@ -52,6 +58,24 @@ return new class extends Migration {
             $table->string('gender')->nullable(); // Removed ENUM
             $table->foreignId('class_id')->nullable()->constrained('classes')->onDelete('set null');
             $table->timestamps();
+        });
+
+        Schema::create('teachers', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->unique()->constrained('users')->onDelete('cascade');
+            $table->string('lecturer_code')->unique();
+            $table->string('avatar')->nullable();
+            $table->string('address')->nullable();
+            $table->date('birth_date')->nullable();
+            $table->string('gender');
+            $table->foreignId('department_id')->nullable()->constrained('departments')->onDelete('set null');
+            $table->string('degree');
+            $table->string('specialization')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
+            $table->boolean('active')->default(true);
+            $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('lecturers', function (Blueprint $table) {
@@ -125,6 +149,7 @@ return new class extends Migration {
         Schema::dropIfExists('subjects');
         Schema::dropIfExists('classes');
         Schema::dropIfExists('departments');
+        Schema::dropIfExists('teachers');
         Schema::dropIfExists('lecturers');
         Schema::dropIfExists('students');
         Schema::dropIfExists('users');

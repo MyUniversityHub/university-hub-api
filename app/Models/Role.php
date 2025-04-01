@@ -15,6 +15,10 @@ class Role extends BaseModel
         'active'
     ];
 
-
+    protected static array $fields = [
+        'id' => 'id',
+        'name' => 'name',
+        'active' => 'active'
+    ];
 
 }

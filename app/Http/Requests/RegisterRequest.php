@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
 
 class RegisterRequest extends FormRequest
 {
@@ -27,10 +28,12 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => ['required', 'max:255'],
-            'user_name' => ['required', 'max:255'],
-            'email' => ['email'],
+            'user_name' => ['required', 'max:255', Rule::unique('users', 'email')->ignore($this->route('id'), 'id')],
+            'email' => ['email',  Rule::unique('users', 'user_name')->ignore($this->route('id'), 'id')],
             'password' => ['required', 'min:8'],
             'role_id' => ['required', 'integer'],
+            'class_id' => ['nullable', 'required_if:role_id,2', 'exists:classes,id'],
+            'department_id' => ['nullable', 'required_if:role_id,3', 'exists:departments,id'],
         ];
     }
 
@@ -50,6 +53,10 @@ class RegisterRequest extends FormRequest
             'role_id.required' => 'Vai trò không được để trống.',
             'role_id.integer' => 'Vai trò phải là chữ số.',
             'role_id.exists' => 'Vai trò không tồn tại trong hệ thống.',
+            'class_id.required_if' => 'Lớp học là bắt buộc khi vai trò là Học sinh.',
+            'class_id.exists' => 'Lớp học không tồn tại trong hệ thống.',
+            'department_id.required_if' => 'Khoa là bắt buộc khi vai trò là Giảng viên',
+            'department_id.exists' => 'Khoa không tồn tại trong hệ thống.',
         ];
     }
 
