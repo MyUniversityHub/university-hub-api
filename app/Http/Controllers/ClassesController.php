@@ -31,6 +31,28 @@ class ClassesController extends Controller
         return $this->successResponse($redirects, 'Danh sách lớp học');
     }
 
+    public function getClassesActive()
+    {
+        try {
+            $redirects = $this->classesRepository->listWithFilter()->where(Classes::active(), CLASS_STATUS_ACTIVE)->get();
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
+        }
+
+        return $this->successResponse($redirects, 'Danh sách lớp học');
+    }
+
+    public function getClassesByMajor($id)
+    {
+        try {
+            $redirects = $this->classesRepository->listWithFilter()->where(Classes::majorId(), $id)->where(Classes::active(), CLASS_STATUS_ACTIVE)->get();
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
+        }
+
+        return $this->successResponse($redirects, 'Danh sách lớp học');
+    }
+
     public function updateActive(Request $request, $id)
     {
         $active = $request->get('active');

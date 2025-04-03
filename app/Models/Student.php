@@ -8,14 +8,18 @@ class Student extends BaseModel
 {
     protected $primaryKey = 'id';
     protected $table = 'students';
-
+    const TABLE_NAME = 'students';
 
     protected $fillable = [
+        'id',
         'user_id',
         'student_code',
+        'avatar',
+        'phone_number',
+        'status',
+        'address',
         'birth_date',
         'gender',
-        'department_id',
         'class_id',
         'created_at',
         'updated_at'
@@ -23,10 +27,13 @@ class Student extends BaseModel
 
     protected static array $fields = [
         'userId' => 'user_id',
-        'studentCode' => 'student_code',
+        'code' => 'student_code',
+        'avatar' => 'avatar',
+        'phoneNumber' => 'phone_number',
+        'status' => 'status',
+        'address' => 'address',
         'bod' => 'birth_date',
         'gender' => 'gender',
-        'departmentId' => 'department_id',
         'classId' => 'class_id',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'

@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RefreshTokenRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\UpdateProfileRequest;
+use App\Models\Student;
 use App\Repositories\Contracts\RoleRepositoryInterface;
+use App\Repositories\Contracts\StudentRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -21,7 +25,8 @@ class AuthenticateController extends Controller
     use ApiResponse;
     public function __construct(
         public UserRepositoryInterface $userRepository,
-        public RoleRepositoryInterface $roleRepository
+        public RoleRepositoryInterface $roleRepository,
+        public StudentRepositoryInterface $studentRepository
     )
     {
     }
@@ -32,14 +37,20 @@ class AuthenticateController extends Controller
             $userData = $request->all();
             $userData['password'] = Hash::make($userData['password']);
             $userData['active'] = 1;
-            $response = $this->userRepository->create($userData);
-            if (!$response) {
+            $user = $this->userRepository->create($userData);
+            if (!$user) {
                 return $this->errorResponse('Đăng ký tài khoản thất bại!', Response::HTTP_UNAUTHORIZED, 'Error register');
+            }
+            if($user->role_id === 'STUDENT') {
+                $this->studentRepository->create([
+                    'user_id' => $user->id,
+
+                ]);
             }
         } catch (\Exception $e) {
             return $this->errorResponse('Đăng ký tài khoản thất bại!', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
-        return $this->successResponse($response, 'Tài khoản đã được đăng ký thành công!');
+        return $this->successResponse($user, 'Tài khoản đã được đăng ký thành công!');
     }
 
     public function login(LoginRequest $request)
@@ -114,17 +125,17 @@ class AuthenticateController extends Controller
     public function changePassword(ChangePasswordRequest $request): JsonResponse
     {
 
-        $user = authUser();
+        $user = auth('api')->user();
         $currentPassword = $request->input('current_password');
         $newPassword = $request->input('new_password');
         // Check if the current password matches
-        if (!Hash::check($currentPassword, $user->getPassword())) {
+        if (!Hash::check($currentPassword, $user->password)) {
             return $this->errorResponse('Mật khẩu hiện tại không chính xác!', Response::HTTP_UNAUTHORIZED, 'Error change password');
         }
 
         // Update password
         try {
-            $this->userRepository->update($user->User::id(), ['password' => Hash::make($newPassword)]);
+            $this->userRepository->update($user->id, ['password' => Hash::make($newPassword)]);
         } catch (\Exception $exception) {
             return $this->errorResponse('Thay đổi mật khẩu thất bại!', Response::HTTP_BAD_REQUEST, $exception->getMessage());
         }
@@ -134,9 +145,9 @@ class AuthenticateController extends Controller
 
     public function updateProfile(UpdateProfileRequest $request): JsonResponse
     {
-        $user = authUser();
+        $user = auth('api')->user();
         try {
-            $user = $this->userRepository->update($user->User::id(), $request->validated());
+            $user = $this->userRepository->update($user->id, $request->validated());
             return $this->successResponse($user, 'Thay đổi thông tin tài khoản thành công!');
         } catch (\Exception $exception) {
             return $this->errorResponse($exception->getMessage(), $exception->getCode());
