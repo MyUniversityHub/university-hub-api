@@ -18,6 +18,8 @@ Route::post('/register', [AuthenticateController::class, 'register']);
 
 Route::group(['middleware' => ['auth:api', ROLE_PERMISSION_MIDDLEWARE]], function () {
     Route::group(['prefix' => 'admin', 'middleware' => [ROLE_MIDDLEWARE . ':' . ROLE_ADMIN]], function () {
+        Route::put('/change-password', [AuthenticateController::class, 'changePassword']);
+        Route::put('/update-profile', [AuthenticateController::class, 'updateProfile']);
         Route::group(['prefix' => 'departments'], function () {
             Route::get('/', [DepartmentController::class, 'index']);
             Route::get('/active', [DepartmentController::class, 'getDepartmentsActive']);
