@@ -23,7 +23,7 @@ class DepartmentController extends Controller
     {
         $perPage = $request->get('per_page', LIST_LIMIT_PAGINATION);
         try {
-            $redirects = $this->departmentRepository->listWithFilter($request)->orderBy('created_at', 'desc')->paginate($perPage);
+            $redirects = $this->departmentRepository->listWithFilter($request)->orderBy(Department::field('id'), 'desc')->paginate($perPage);
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -46,7 +46,7 @@ class DepartmentController extends Controller
     {
         $active = $request->get('active');
         try {
-            $response = $this->departmentRepository->update($id, ['active' => $active]);
+            $response = $this->departmentRepository->update($id, [Department::field('active') => $active]);
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -58,6 +58,8 @@ class DepartmentController extends Controller
         try {
             $data = $request->all();
             $response = $this->departmentRepository->create($data);
+            $response->{Department::field('code')} = 'DE' . str_pad($response->{Department::field('id')}, 3, '0', STR_PAD_LEFT);
+            $response->save();
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }

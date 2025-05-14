@@ -24,7 +24,7 @@ class MajorController extends Controller
     {
         $perPage = $request->get('per_page', LIST_LIMIT_PAGINATION);
         try {
-            $redirects = $this->majorRepository->listWithFilter($request)->orderBy('created_at', 'desc')->paginate($perPage);
+            $redirects = $this->majorRepository->listWithFilter($request)->orderBy(Major::field('id'), 'desc')->paginate($perPage);
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -35,7 +35,7 @@ class MajorController extends Controller
     public function getMajorsActive(Request $request)
     {
         try {
-            $redirects = $this->majorRepository->listWithFilter($request)->where('active', MAJOR_STATUS_ACTIVE)->get();
+            $redirects = $this->majorRepository->listWithFilter($request)->where(Major::field('active'), MAJOR_STATUS_ACTIVE)->get();
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -46,7 +46,7 @@ class MajorController extends Controller
     public function getMajorsByDepartment($id)
     {
         try {
-            $redirects = $this->majorRepository->listWithFilter()->where(Major::departmentId(), $id)->where(Major::active(), MAJOR_STATUS_ACTIVE)->get();
+            $redirects = $this->majorRepository->listWithFilter()->where(Major::field('departmentId'), $id)->where(Major::field('active'), MAJOR_STATUS_ACTIVE)->get();
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -58,7 +58,7 @@ class MajorController extends Controller
     {
         $active = $request->get('active');
         try {
-            $response = $this->majorRepository->update($id, ['active' => $active]);
+            $response = $this->majorRepository->update($id, [Major::field('active') => $active]);
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -70,6 +70,8 @@ class MajorController extends Controller
         try {
             $data = $request->all();
             $response = $this->majorRepository->create($data);
+            $response->{Major::field('code')} = 'MA' . str_pad($response->{Major::field('id')}, 4, '0', STR_PAD_LEFT);
+            $response->save();
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -91,7 +93,7 @@ class MajorController extends Controller
     {
         $ids = $request->input('ids');
         try {
-            $response = $this->majorRepository->bulkDelete($ids, Major::id());
+            $response = $this->majorRepository->bulkDelete($ids, Major::field('id'));
         }catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }

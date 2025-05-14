@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateStudentRequest;
 use App\Http\Requests\UserRequest;
 use App\Mail\UserRegisteredMail;
 use App\Mail\UserResetPasswordMail;
@@ -75,13 +76,13 @@ class UserController extends Controller
         return $this->successResponse($response, 'Danh sách người tài khoản của quản trị viên');
     }
 
-    public function create(UserRequest $request)
+    public function create(CreateStudentRequest $request)
     {
         DB::beginTransaction();
         try {
             $userData = $request->all();
-
             // Tạo mật khẩu ngẫu nhiên nếu không có
+            $userData['user_name'] = 'student';
             if (empty($userData['password'])) {
                 $password = $this->generateRandomPassword();
                 $userData['password'] = $password;
@@ -97,23 +98,26 @@ class UserController extends Controller
             if (!$user) {
                 return $this->errorResponse('Đăng ký tài khoản thất bại!', Response::HTTP_UNAUTHORIZED, 'Error register');
             }
-
             if ($user->role_id === ROLE_STUDENT) {
+                $user->user_name = 'STUDENT' . str_pad($user->id, 3, '0', STR_PAD_LEFT);
+                $user->save();
                 $this->studentRepository->create([
                     'user_id' => $user->id,
-                    'student_code' => $userData['user_name'],
+                    'student_code' => $user->user_name,
                     'class_id' => $userData['class_id'],
+                    'admission_year' => $userData['admission_year'],
                 ]);
             }
 
             if ($user->role_id === ROLE_TEACHER) {
+                $user->user_name = 'TEACHER' . str_pad($user->id, 3, '0', STR_PAD_LEFT);
+                $user->save();
                 $this->teacherRepository->create([
                     'user_id' => $user->id,
-                    'lecturer_code' => $userData['user_name'],
+                    'teacher_code' => $user->user_name,
                     'department_id' => $userData['department_id']
                 ]);
             }
-
             // Gửi email cho người dùng
             Mail::to($user->email)->send(new UserRegisteredMail($user, $password));
 
@@ -158,7 +162,7 @@ class UserController extends Controller
             // Xử lý Teacher nếu role là ROLE_TEACHER
             if ($user->role_id === ROLE_TEACHER) {
                 $teacherData = [
-                    'lecturer_code' => $userData['user_name'],
+                    'teacher_code' => $userData['user_name'],
                     'department_id' => $userData['department_id'],
                 ];
                 $this->teacherRepository->update($user->teacher->id, $teacherData);

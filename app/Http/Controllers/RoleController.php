@@ -21,7 +21,7 @@ class RoleController extends Controller
     public function getRolesActive()
     {
         try {
-            $redirects = $this->roleRepository->listWithFilter()->where(Role::active(), ROLE_STATUS_ACTIVE)->get();
+            $redirects = $this->roleRepository->listWithFilter()->where(Role::field('active'), ROLE_STATUS_ACTIVE)->get();
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }

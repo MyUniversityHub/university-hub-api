@@ -10,14 +10,14 @@ class Role extends BaseModel
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'id',
-        'name',
+        'role_id',
+        'role_name',
         'active'
     ];
 
     protected static array $fields = [
-        'id' => 'id',
-        'name' => 'name',
+        'id' => 'role_id',
+        'name' => 'role_name',
         'active' => 'active'
     ];
 

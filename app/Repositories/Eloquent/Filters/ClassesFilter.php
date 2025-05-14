@@ -11,9 +11,9 @@ class ClassesFilter extends BaseFilterAbstract
     protected function filters(): array
     {
         return [
-            'name' => ['filterLike', Classes::name()],
-            'courseYear' => ['filterLike', Classes::courseYear()],
-            'major' => ['filterExact', Classes::majorId()]
+            'name' => ['filterLike', Classes::field('name')],
+            'courseYear' => ['filterLike', Classes::field('courseYear')],
+            'major' => ['filterExact', Classes::field('majorId')]
         ];
     }
 

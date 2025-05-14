@@ -10,8 +10,8 @@ class DepartmentFilter extends BaseFilterAbstract
     protected function filters(): array
     {
         return [
-            'code' => ['filterLike', Department::code()],
-            'name' => ['filterLike', Department::name()]
+            'code' => ['filterLike', Department::field('code')],
+            'name' => ['filterLike', Department::field('name')]
         ];
     }
 
