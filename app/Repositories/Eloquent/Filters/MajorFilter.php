@@ -10,9 +10,9 @@ class MajorFilter extends BaseFilterAbstract
     protected function filters(): array
     {
         return [
-            'code' => ['filterLike', Major::code()],
-            'name' => ['filterLike', Major::name()],
-            'department' => ['filterExact', Major::departmentId()]
+            'code' => ['filterLike', Major::field('code')],
+            'name' => ['filterLike', Major::field('name')],
+            'department' => ['filterExact', Major::field('departmentId')]
         ];
     }
 

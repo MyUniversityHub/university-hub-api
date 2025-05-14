@@ -10,9 +10,9 @@ class Teacher extends BaseModel
     protected $primaryKey = 'id';
     const TABLE_NAME = 'teachers';
     protected $fillable = [
-        'id',
+        'teacher_id',
         'user_id',
-        'lecturer_code',
+        'teacher_code',
         'avatar',
         'address',
         'birth_date',
@@ -29,9 +29,9 @@ class Teacher extends BaseModel
     ];
 
     protected static array $fields = [
-        'id' => 'id',
+        'id' => 'teacher_id',
         'userId' => 'user_id',
-        'code' => 'lecturer_code',
+        'code' => 'teacher_code',
         'avatar' => 'avatar',
         'address' => 'address',
         'birthDate' => 'birth_date',
@@ -46,4 +46,9 @@ class Teacher extends BaseModel
         'updatedAt' => 'updated_at',
         'deletedAt' => 'deleted_at',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }

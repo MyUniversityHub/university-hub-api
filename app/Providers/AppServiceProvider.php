@@ -2,11 +2,12 @@
 
 namespace App\Providers;
 
-use App\Models\Classes;
-use App\Models\Teacher;
 use App\Models\User;
 use App\Observers\UserObserver;
 use App\Repositories\Contracts\ClassesRepositoryInterface;
+use App\Repositories\Contracts\ClassroomRepositoryInterface;
+use App\Repositories\Contracts\CourseClassRepositoryInterface;
+use App\Repositories\Contracts\CourseRepositoryInterface;
 use App\Repositories\Contracts\DepartmentRepositoryInterface;
 use App\Repositories\Contracts\MajorRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
@@ -14,6 +15,9 @@ use App\Repositories\Contracts\StudentRepositoryInterface;
 use App\Repositories\Contracts\TeacherRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\ClassesRepositoryImpl;
+use App\Repositories\Eloquent\ClassroomRepositoryImpl;
+use App\Repositories\Eloquent\CourseClassRepositoryImpl;
+use App\Repositories\Eloquent\CourseRepositoryImpl;
 use App\Repositories\Eloquent\DepartmentRepositoryImpl;
 use App\Repositories\Eloquent\MajorRepositoryImpl;
 use App\Repositories\Eloquent\RoleRepositoryImpl;
@@ -40,7 +44,10 @@ class AppServiceProvider extends ServiceProvider
             DepartmentRepositoryInterface::class => DepartmentRepositoryImpl::class,
             MajorRepositoryInterface::class => MajorRepositoryImpl::class,
             ClassesRepositoryInterface::class => ClassesRepositoryImpl::class,
-            TeacherRepositoryInterface::class => TeacherRepositoryImpl::class
+            TeacherRepositoryInterface::class => TeacherRepositoryImpl::class,
+            CourseRepositoryInterface::class => CourseRepositoryImpl::class,
+            ClassroomRepositoryInterface::class => ClassroomRepositoryImpl::class,
+            CourseClassRepositoryInterface::class => CourseClassRepositoryImpl::class,
         ];
     }
     public function register(): void

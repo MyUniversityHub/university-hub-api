@@ -10,12 +10,12 @@ class Classes extends BaseModel
     use SoftDeletes;
 
     protected $table = 'classes';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'class_id';
     const TABLE_NAME = 'classes';
 
     protected $fillable = [
-        'id',
-        'name',
+        'class_id',
+        'class_name',
         'major_id',
         'course_year',
         'student_count',
@@ -27,8 +27,8 @@ class Classes extends BaseModel
     ];
 
     protected static array $fields = [
-        'id' => 'id',
-        'name' => 'name',
+        'id' => 'class_id',
+        'name' => 'class_name',
         'majorId' => 'major_id',
         'courseYear' => 'course_year',
         'studentCount' => 'student_count',

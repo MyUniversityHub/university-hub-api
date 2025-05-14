@@ -11,18 +11,18 @@ class ClassesRequest extends BaseRequest
     public function rulesPost(): array
     {
         return [
-            Classes::name() => ['required', 'max:120', 'regex:/^[A-Za-z0-9]+$/', Rule::unique(Classes::TABLE_NAME, Classes::name())],
-            Classes::courseYear() => ['required', 'max:50'],
-            Classes::advisorName() => ['required', 'max:50', 'regex:/^[\p{L}\s]+$/u'],
+//            Classes::name() => ['required', 'max:120', 'regex:/^[A-Za-z0-9]+$/', Rule::unique(Classes::TABLE_NAME, Classes::name())],
+            Classes::field('courseYear') => ['required', 'max:50'],
+            Classes::field('advisorName') => ['required', 'max:50', 'regex:/^[\p{L}\s]+$/u'],
         ];
     }
 
     public function rulesPut(): array
     {
         return [
-            Classes::name() => ['required', 'max:120', 'regex:/^[A-Za-z0-9]+$/', Rule::unique(Classes::TABLE_NAME, Classes::name())->ignore($this->route('id'), Classes::id())],
-            Classes::courseYear() => ['required', 'max:50'],
-            Classes::advisorName() => ['required', 'max:50', 'regex:/^[\p{L}\s]+$/u'],
+//            Classes::name() => ['required', 'max:120', 'regex:/^[A-Za-z0-9]+$/', Rule::unique(Classes::TABLE_NAME, Classes::name())->ignore($this->route('id'), Classes::id())],
+            Classes::field('courseYear') => ['required', 'max:50'],
+            Classes::field('advisorName') => ['required', 'max:50', 'regex:/^[\p{L}\s]+$/u'],
         ];
     }
 

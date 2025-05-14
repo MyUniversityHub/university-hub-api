@@ -23,7 +23,7 @@ class ClassesController extends Controller
     {
         $perPage = $request->get('per_page', LIST_LIMIT_PAGINATION);
         try {
-            $redirects = $this->classesRepository->listWithFilter($request)->orderBy('created_at', 'desc')->paginate($perPage);
+            $redirects = $this->classesRepository->listWithFilter($request)->orderBy(Classes::field('id'), 'desc')->paginate($perPage);
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -34,7 +34,7 @@ class ClassesController extends Controller
     public function getClassesActive()
     {
         try {
-            $redirects = $this->classesRepository->listWithFilter()->where(Classes::active(), CLASS_STATUS_ACTIVE)->get();
+            $redirects = $this->classesRepository->listWithFilter()->where(Classes::field('active'), CLASS_STATUS_ACTIVE)->get();
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -45,7 +45,7 @@ class ClassesController extends Controller
     public function getClassesByMajor($id)
     {
         try {
-            $redirects = $this->classesRepository->listWithFilter()->where(Classes::majorId(), $id)->where(Classes::active(), CLASS_STATUS_ACTIVE)->get();
+            $redirects = $this->classesRepository->listWithFilter()->where(Classes::field('majorId'), $id)->where(Classes::field('active'), CLASS_STATUS_ACTIVE)->get();
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -57,7 +57,7 @@ class ClassesController extends Controller
     {
         $active = $request->get('active');
         try {
-            $response = $this->classesRepository->update($id, ['active' => $active]);
+            $response = $this->classesRepository->update($id, [Classes::field('active') => $active]);
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -69,6 +69,8 @@ class ClassesController extends Controller
         try {
             $data = $request->all();
             $response = $this->classesRepository->create($data);
+            $response->{Classes::field('name')} = 'CLASS' . str_pad($response->{Classes::field('id')}, 4, '0', STR_PAD_LEFT);
+            $response->save();
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }

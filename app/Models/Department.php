@@ -9,12 +9,12 @@ class Department extends BaseModel
 {
     use SoftDeletes;
     protected $table = 'departments';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'department_id';
     const TABLE_NAME = 'departments';
     protected $fillable = [
-        'id',
-        'code',
-        'name',
+        'department_id',
+        'department_code',
+        'department_name',
         'description',
         'active',
         'created_at',
@@ -23,9 +23,9 @@ class Department extends BaseModel
     ];
 
     protected static array $fields = [
-        'id' => 'id',
-        'code' => 'code',
-        'name' => 'name',
+        'id' => 'department_id',
+        'code' => 'department_code',
+        'name' => 'department_name',
         'description' => 'description',
         'active' => 'active',
         'createdAt' => 'created_at',

@@ -4,12 +4,24 @@ namespace App\Traits;
 
 trait HasFields
 {
-    public static function getField(string $key)
+    /**
+     * Get the mapped field name.
+     *
+     * @param string $key
+     * @return string
+     */
+    public static function field(string $key): string
     {
         return static::$fields[$key] ?? $key;
     }
-    public static function __callStatic($name, $arguments)
+
+    /**
+     * Get all fields mapping (optional helper).
+     *
+     * @return array
+     */
+    public static function fields(): array
     {
-        return static::getField($name);
+        return static::$fields ?? [];
     }
 }
