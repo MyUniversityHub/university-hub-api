@@ -6,6 +6,9 @@ use App\Http\Requests\CreateStudentRequest;
 use App\Http\Requests\UserRequest;
 use App\Mail\UserRegisteredMail;
 use App\Mail\UserResetPasswordMail;
+use App\Models\Statistic;
+use App\Models\Student;
+use App\Models\Teacher;
 use App\Repositories\Contracts\StudentRepositoryInterface;
 use App\Repositories\Contracts\TeacherRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -99,24 +102,28 @@ class UserController extends Controller
                 return $this->errorResponse('Đăng ký tài khoản thất bại!', Response::HTTP_UNAUTHORIZED, 'Error register');
             }
             if ($user->role_id === ROLE_STUDENT) {
-                $user->user_name = 'STUDENT' . str_pad($user->id, 3, '0', STR_PAD_LEFT);
-                $user->save();
-                $this->studentRepository->create([
+                $student = $this->studentRepository->create([
                     'user_id' => $user->id,
-                    'student_code' => $user->user_name,
                     'class_id' => $userData['class_id'],
                     'admission_year' => $userData['admission_year'],
                 ]);
+                Statistic::where('name', 'total_students')->increment('value');
+                $student->student_code = 'STUDENT' . str_pad($student->student_id, 3, '0', STR_PAD_LEFT);
+                $student->save();
+                $user->user_name = $student->student_code;
+                $user->save();
             }
 
             if ($user->role_id === ROLE_TEACHER) {
-                $user->user_name = 'TEACHER' . str_pad($user->id, 3, '0', STR_PAD_LEFT);
-                $user->save();
-                $this->teacherRepository->create([
+                $teacher = $this->teacherRepository->create([
                     'user_id' => $user->id,
-                    'teacher_code' => $user->user_name,
                     'department_id' => $userData['department_id']
                 ]);
+                Statistic::where('name', 'total_teachers')->increment('value');
+                $teacher->teacher_code = 'TEACHER' . str_pad($teacher->teacher_id, 3, '0', STR_PAD_LEFT);
+                $teacher->save();
+                $user->user_name = $teacher->teacher_code;
+                $user->save();
             }
             // Gửi email cho người dùng
             Mail::to($user->email)->send(new UserRegisteredMail($user, $password));
@@ -134,15 +141,8 @@ class UserController extends Controller
     {
         DB::beginTransaction();
         try {
+
             $userData = $request->all();
-
-            // Chỉ hash mật khẩu nếu có trong request
-            if (!empty($userData['password'])) {
-                $userData['password'] = Hash::make($userData['password']);
-            } else {
-                unset($userData['password']); // Tránh ghi đè mật khẩu cũ với giá trị null
-            }
-
             // Cập nhật User
             $user = $this->userRepository->update($id, $userData);
             if (!$user) {
@@ -152,20 +152,19 @@ class UserController extends Controller
             // Xử lý Student nếu role là ROLE_STUDENT
             if ($user->role_id === ROLE_STUDENT) {
                 $studentData = [
-                    'student_code' => $userData['user_name'],
                     'class_id' => $userData['class_id'],
                 ];
-                $user['student'] =  $this->studentRepository->update($user->student->id, $studentData);
+                $user['student'] =  $this->studentRepository->update($user->student->{Student::field('id')}, $studentData);
                 $user->load('student');
             }
 
             // Xử lý Teacher nếu role là ROLE_TEACHER
             if ($user->role_id === ROLE_TEACHER) {
                 $teacherData = [
-                    'teacher_code' => $userData['user_name'],
                     'department_id' => $userData['department_id'],
                 ];
-                $this->teacherRepository->update($user->teacher->id, $teacherData);
+
+                $user['teacher'] = $this->teacherRepository->update($user->teacher->{Teacher::field('id')}, $teacherData);
                 $user->load('teacher');
             }
 
@@ -209,8 +208,21 @@ class UserController extends Controller
     public function bulkDelete(Request $request)
     {
         $ids = $request->input('ids');
+        $role = $request->input('role', null);
+        DB::beginTransaction();
         try {
+            $count = Student::whereIn('user_id', $ids)->count();
             $response = $this->userRepository->bulkDelete($ids, 'id');
+            if($role == 'STUDENT') {
+                $this->studentRepository->bulkSoftDeleteByUserIds($ids);
+                Statistic::where('name', 'total_students')->decrement('value', $count);
+            }
+
+            if($role == 'TEACHER') {
+                $this->teacherRepository->bulkSoftDeleteByUserIds($ids);
+                Statistic::where('name', 'total_teachers')->decrement('value', $count);
+            }
+            DB::commit();
         }catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -228,5 +240,37 @@ class UserController extends Controller
         }
 
         return $password;
+    }
+
+    public function getNotifications()
+    {
+        $userId = auth()->user()->id;
+        try {
+            $notifications = DB::table('notification')
+                ->where('user_id', $userId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return $this->successResponse($notifications, 'Danh sách thông báo của người dùng');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
+        }
+    }
+
+    public function updateStatusNotification()
+    {
+        $userId = auth()->user()->id;
+        try {
+            $notification = DB::table('notification')->where('user_id', $userId)->get();
+            if (!$notification) {
+                return $this->errorResponse('Thông báo không tồn tại', Response::HTTP_NOT_FOUND);
+            }
+
+            DB::table('notification')->where('user_id', $userId)->update(['status' => 1]); // 1: Đã đọc
+
+            return $this->successResponse(null, 'Cập nhật trạng thái thông báo thành công');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
+        }
     }
 }

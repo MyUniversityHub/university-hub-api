@@ -14,8 +14,8 @@ class UserRequest extends BaseRequest
             'user_name' => ['required', 'max:255', Rule::unique('users', 'email')],
             'email' => ['email',  Rule::unique('users', 'user_name')],
             'role_id' => ['required', 'integer'],
-            'class_id' => ['nullable', 'required_if:role_id,2', 'exists:classes,id'],
-            'department_id' => ['nullable', 'required_if:role_id,3', 'exists:departments,id'],
+            'class_id' => ['nullable', 'required_if:role_id,2', 'exists:classes,class_id'],
+            'department_id' => ['nullable', 'required_if:role_id,3', 'exists:departments,department_id'],
         ];
     }
 
@@ -26,8 +26,8 @@ class UserRequest extends BaseRequest
             'user_name' => ['required', 'max:255', Rule::unique('users', 'email')->ignore($this->route('id'), 'id')],
             'email' => ['email', 'max:50',  Rule::unique('users', 'user_name')->ignore($this->route('id'), 'id')],
             'role_id' => ['required', 'integer'],
-            'class_id' => ['nullable', 'required_if:role_id,2', 'exists:classes,id'],
-            'department_id' => ['nullable', 'required_if:role_id,3', 'exists:departments,id'],
+            'class_id' => ['nullable', 'required_if:role_id,2', 'exists:classes,class_id'],
+            'department_id' => ['nullable', 'required_if:role_id,3', 'exists:departments,department_id'],
         ];
     }
 

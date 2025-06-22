@@ -11,6 +11,7 @@ class CourseClassFilter extends BaseFilterAbstract
     {
         return [
             'code' => ['filterLike', CourseClass::field('course_class_code')],
+            'status' => ['filterExact', CourseClass::field('status')],
             'start_date' => ['filterDate', CourseClass::field('start_date')],
             'end_date' => ['filterDate', CourseClass::field('end_date')],
         ];

@@ -11,7 +11,7 @@ class CourseRequest extends BaseRequest
     public function rulesPost(): array
     {
         return [
-            Course::field('name') => ['required', 'max:120', 'regex:/^[\p{L}\s\-]+$/u', Rule::unique(Course::TABLE_NAME, Course::field('name'))],
+            Course::field('name') => ['required', 'max:120', 'regex:/^[\pL\pN\s\-]+$/u', Rule::unique(Course::TABLE_NAME, Course::field('name'))],
             Course::field('creditHours') => ['required', 'integer', 'min:1'],
         ];
     }

@@ -10,7 +10,7 @@ class TeacherFilter extends BaseFilterAbstract
     protected function filters(): array
     {
         return [
-            'code' => ['filterLike', Teacher::code()]
+            'code' => ['filterLike', Teacher::field('code')]
         ];
     }
 

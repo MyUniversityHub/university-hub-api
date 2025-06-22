@@ -58,8 +58,10 @@ class AuthenticateController extends Controller
         $userName = $request->input('user_name');
         $password = $request->input('password');
 
-        if (!Auth::attempt(['user_name' => $userName, 'password' => $password])) {
-            return $this->errorResponse('Đăng nhâp thất bại!', Response::HTTP_UNAUTHORIZED, 'Unauthorized');
+        $user = $this->userRepository->findBy('user_name', $userName);
+
+        if (!$user || !Auth::attempt(['user_name' => $userName, 'password' => $password])) {
+            return $this->errorResponse('Tên đăng nhập hoặc mật khẩu không đúng', Response::HTTP_UNAUTHORIZED, 'Unauthorized');
         }
 
         return $this->addTokenLogin($userName, $password);
@@ -79,6 +81,10 @@ class AuthenticateController extends Controller
             $role = $this->roleRepository->find($user->role_id);
             if ($role->active == ROLE_STATUS_DEACTIVATE) {
                 return $this->errorResponse('Tài khoản không hợp lệ!', Response::HTTP_UNAUTHORIZED);
+            }
+
+            if ($user->active === 0) {
+                return $this->errorResponse('Tài khoản của bạn đã bị khóa', Response::HTTP_UNAUTHORIZED, 'Account locked');
             }
         }
         $response = passportResponse($userName, $password);

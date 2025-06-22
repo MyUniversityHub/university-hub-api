@@ -50,6 +50,7 @@ return [
         CourseClass::field('teacher_id') => 'Mã giảng viên',
         CourseClass::field('weekday') => 'Thứ trong tuần',
         CourseClass::field('semester') => 'Học kỳ',
+        CourseClass::field('slot') => 'Số lượng sinh viên',
         CourseClass::field('lesson_start') => 'Tiết bắt đầu',
         CourseClass::field('lesson_end') => 'Tiết kết thúc',
         CourseClass::field('start_date') => 'Ngày bắt đầu',

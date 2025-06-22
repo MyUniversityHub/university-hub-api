@@ -51,4 +51,11 @@ abstract class BaseFilterAbstract
     {
         $query->where($field, $value);
     }
+
+    protected function filterBetweenDatetime(Builder $query, string $field, array $range)
+    {
+        if (count($range) === 2 && $range[0] && $range[1]) {
+            $query->whereBetween($field, [$range[0], $range[1]]);
+        }
+    }
 }

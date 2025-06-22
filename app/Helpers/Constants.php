@@ -46,4 +46,12 @@ const CLASSROOM_STATUS_DEACTIVATE = 0;
 const COURSE_STATUS_ACTIVE = 1;
 const COURSE_STATUS_DEACTIVATE = 0;
 
+//COURSE CLASS
+const COURSE_CLASS_STATUS_READY_TO_OPEN = 1;
+const COURSE_CLASS_STATUS_WAITING_FOR_TEACHER_ASSIGNMENT = 0;
+const COURSE_CLASS_STATUS_OPEN = 2; // trạng thái mở lớp học phần
+const COURSE_CLASS_STATUS_CLOSE = 3; // trạng thái đóng lớp học phần
+
+const COURSE_CLASS_STATUS_END = 4; // trạng thái kết thúc lớp học phần
+
 

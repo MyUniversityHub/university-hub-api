@@ -69,7 +69,6 @@ return new class extends Migration {
             $table->string('degree')->nullable();
             $table->string('specialization')->nullable();
             $table->string('phone')->nullable();
-            $table->string('email')->nullable();
             $table->boolean('active')->default(true);
             $table->timestamps();
             $table->softDeletes();
@@ -99,21 +98,43 @@ return new class extends Migration {
             $table->foreignId('course_id')->constrained('courses', 'course_id')->onDelete('cascade');
             $table->foreignId('classroom_id')->nullable()->constrained('classrooms', 'classroom_id')->onDelete('set null');
             $table->foreignId('teacher_id')->nullable()->constrained('teachers', 'teacher_id')->onDelete('set null');
+            $table->foreignId('major_id')->nullable()->constrained('majors', 'major_id')->onDelete('set null');
             $table->json('weekdays')->nullable();
             $table->tinyInteger('semester')->nullable();
-            $table->integer('lesson_start')->default(0);
-            $table->integer('lesson_end')->default(0);
-            $table->integer('slot')->default(0);
+            $table->unsignedInteger('lesson_start')->default(0);
+            $table->unsignedInteger('lesson_end')->default(0);
+            $table->unsignedInteger('current_student_count')->default(0);
+            $table->unsignedInteger('max_student_count')->nullable();
+            $table->tinyInteger('status')->default(0); // 0: Chờ phân công giảng viên, 1: Sẵn sàng mở , 2: Đã mở, 3: Đã kết thúc
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
 
-        Schema::create('student_course_registrations', function (Blueprint $table) {
+//        Schema::create('student_course_registrations', function (Blueprint $table) {
+//            $table->foreignId('student_id')->constrained('students', 'student_id')->onDelete('cascade');
+//            $table->foreignId('course_class_id')->constrained('course_classes', 'course_class_id')->onDelete('cascade');
+//            $table->integer('status')->default(0);
+//            $table->timestamps();
+//            $table->softDeletes();
+//
+//            $table->primary(['student_id', 'course_class_id']);
+//        });
+
+        Schema::create('student_course_results', function (Blueprint $table) {
             $table->foreignId('student_id')->constrained('students', 'student_id')->onDelete('cascade');
             $table->foreignId('course_class_id')->constrained('course_classes', 'course_class_id')->onDelete('cascade');
-            $table->integer('status')->default(0);
+
+            $table->decimal('frequent_score_1', 2, 1)->nullable();
+            $table->decimal('frequent_score_2', 2, 1)->nullable();
+            $table->decimal('frequent_score_3', 2, 1)->nullable();
+            $table->decimal('final_score', 2, 1)->nullable();
+            $table->integer('absent_sessions')->default(0);
+            $table->decimal('average_score', 5, 2)->nullable();
+            $table->string('grade', 10)->nullable();
+            $table->boolean('status')->default(1); // 0: Trượt môn, 1: Đang học, 2: Đã học
+            $table->text('note')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
@@ -135,7 +156,7 @@ return new class extends Migration {
             $table->primary(['student_id', 'course_class_id', 'fee_code']);
             $table->foreign(['student_id', 'course_class_id'])
                 ->references(['student_id', 'course_class_id'])
-                ->on('student_course_registrations')
+                ->on('student_course_results')
                 ->onDelete('cascade');
         });
 
@@ -153,42 +174,41 @@ return new class extends Migration {
         Schema::create('course_prerequisites', function (Blueprint $table) {
             $table->foreignId('course_id')->constrained('courses', 'course_id')->onDelete('cascade');
             $table->foreignId('prerequisite_course_id')->constrained('courses', 'course_id')->onDelete('cascade');
-            $table->integer('type')->default(1); // 1: tiên quyết, 2: song hành
+//            $table->integer('type')->default(1); // 1: tiên quyết, 2: song hành
             $table->timestamps();
 
-            $table->primary(['course_id', 'prerequisite_course_id', 'type']);
-        });
-
-        Schema::create('student_course_results', function (Blueprint $table) {
-            $table->foreignId('student_id');
-            $table->foreignId('course_class_id');
-
-            $table->decimal('midterm_score', 5, 2)->nullable();
-            $table->decimal('final_score', 5, 2)->nullable();
-            $table->decimal('other_score', 5, 2)->nullable();
-            $table->decimal('average_score', 5, 2)->nullable();
-            $table->string('grade', 10)->nullable(); // A, B, C, etc.
-            $table->tinyInteger('status')->default(0); // 0: Đang học, 1: Qua môn, 2: Trượt môn
-            $table->text('note')->nullable();
-
-            $table->timestamps();
-            $table->softDeletes();
-
-            $table->primary(['student_id', 'course_class_id']);
-            $table->foreign(['student_id', 'course_class_id'])
-                ->references(['student_id', 'course_class_id'])
-                ->on('student_course_registrations')
-                ->onDelete('cascade');
+            $table->primary(['course_id', 'prerequisite_course_id']);
         });
 
         Schema::create('notification', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-
             $table->string('title');
             $table->text('message')->nullable();
-            $table->string('type')->nullable();
+//            $table->string('type')->nullable();
             $table->boolean('status')->default(false);
+            $table->timestamps();
+        });
+
+        Schema::create('curriculum_programs', function (Blueprint $table) {
+            $table->unsignedBigInteger('major_id');     // Khóa ngoại ngành học
+            $table->unsignedBigInteger('course_id');    // Khóa ngoại môn học
+
+            $table->integer('semester');                // Học kỳ áp dụng (1, 2, 3,...)
+
+            $table->timestamps();
+
+            // Khóa ngoại
+            $table->foreign('major_id')->references('major_id')->on('majors')->onDelete('cascade');
+            $table->foreign('course_id')->references('course_id')->on('courses')->onDelete('cascade');
+
+            // Tránh trùng môn trong cùng học kỳ cùng ngành
+            $table->unique(['major_id', 'course_id'], 'unique_curriculum_entry');
+        });
+
+        Schema::create('statistics', function (Blueprint $table) {
+            $table->string('name', 50)->primary(); // Khóa chính là name
+            $table->integer('value')->default(0);
             $table->timestamps();
         });
     }
@@ -196,7 +216,7 @@ return new class extends Migration {
     public function down()
     {
         Schema::dropIfExists('registration_fee_details');
-        Schema::dropIfExists('student_course_registrations');
+//        Schema::dropIfExists('student_course_registrations');
         Schema::dropIfExists('course_classes');
         Schema::dropIfExists('lesson_slots');
         Schema::dropIfExists('classrooms');

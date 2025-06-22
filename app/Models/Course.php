@@ -39,4 +39,9 @@ class Course extends BaseModel
     {
         return $this->hasMany(CoursePrerequisite::class, 'course_id', 'course_id');
     }
+
+    public function courseClasses()
+    {
+        return $this->hasMany(CourseClass::class, 'course_id', 'course_id');
+    }
 }

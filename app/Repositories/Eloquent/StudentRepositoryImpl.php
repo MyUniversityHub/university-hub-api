@@ -14,18 +14,33 @@ class StudentRepositoryImpl extends BaseRepositoryImpl implements StudentReposit
         parent::__construct($model, $filter);
     }
 
-    public function getStudentWithUserInfo()
+    public function getStudentWithUserInfo($request)
     {
-        return $this->model->newQuery()
+        $perPage = $request->get('per_page', LIST_LIMIT_PAGINATION);
+        $query = $this->model->newQuery()
+            ->select('students.admission_year', 'students.student_id', 'students.class_id', 'users.*', 'majors.major_id', 'departments.department_id')
             ->join('users', 'students.user_id', '=', 'users.id')
-            ->get();
+            ->join('classes', 'students.class_id', '=', 'classes.class_id')
+            ->join('majors', 'classes.major_id', '=', 'majors.major_id')
+            ->join('departments', 'majors.department_id', '=', 'departments.department_id');
+        if ($request->has('user_name')) {
+            $query->where('users.user_name', 'like', '%' . $request->get('user_name') . '%');
+        }
+        if ($request->has('name')) {
+            $query->where('users.name', 'like', '%' . $request->get('name') . '%');
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function getStudentWithUserInfoById($id)
     {
         return $this->model->newQuery()
             ->join('users', 'students.user_id', '=', 'users.id')
-            ->select('students.*', 'users.id as user_id', 'users.email', 'users.name')
+            ->join('classes', 'students.class_id', '=', 'classes.class_id')
+            ->join('majors', 'classes.major_id', '=', 'majors.major_id')
+            ->join('departments', 'majors.department_id', '=', 'departments.department_id')
+            ->select('students.*', 'users.id as user_id', 'users.email', 'users.name', 'majors.major_id', 'majors.major_name', 'departments.department_id', 'departments.department_name')
             ->where('users.id', $id)
             ->first();
     }
@@ -42,6 +57,11 @@ class StudentRepositoryImpl extends BaseRepositoryImpl implements StudentReposit
 
         // Insert the registration record
         return DB::table('student_course_registrations')->insert($data);
+    }
+
+    public function bulkSoftDeleteByUserIds(array $userIds)
+    {
+        return $this->model->whereIn('user_id', $userIds)->delete();
     }
 
 

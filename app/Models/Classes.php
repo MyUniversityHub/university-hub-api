@@ -18,7 +18,6 @@ class Classes extends BaseModel
         'class_name',
         'major_id',
         'course_year',
-        'student_count',
         'active',
         'created_at',
         'updated_at',
@@ -31,7 +30,6 @@ class Classes extends BaseModel
         'name' => 'class_name',
         'majorId' => 'major_id',
         'courseYear' => 'course_year',
-        'studentCount' => 'student_count',
         'active' => 'active',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at',
@@ -39,5 +37,9 @@ class Classes extends BaseModel
         'advisorName' => 'advisor_name'
     ];
 
+    public function major()
+    {
+        return $this->belongsTo(Major::class, 'major_id', 'major_id');
+    }
 
 }

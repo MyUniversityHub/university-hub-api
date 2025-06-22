@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ClassroomExport;
 use App\Http\Requests\ClassroomRequest;
+use App\Imports\ClassroomImport;
+use App\Models\Classes;
 use App\Models\Classroom;
+use App\Models\Statistic;
 use App\Repositories\Contracts\ClassroomRepositoryInterface;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ClassroomController extends Controller
 {
@@ -44,9 +50,12 @@ class ClassroomController extends Controller
 
     public function create(ClassroomRequest $request)
     {
+        DB::beginTransaction();
         try {
             $data = $request->all();
             $response = $this->classroomRepository->create($data);
+            Statistic::where('name', 'total_classrooms')->increment('value');
+            DB::commit();
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
@@ -78,11 +87,36 @@ class ClassroomController extends Controller
     public function bulkDelete(Request $request)
     {
         $ids = $request->input('ids');
+        DB::beginTransaction();
         try {
-            $response = $this->classroomRepository->bulkDelete($ids, Classroom::id());
+            $count = Classroom::whereIn('classroom_id', $ids)->count();
+            $response = $this->classroomRepository->bulkDelete($ids, Classroom::field('id'));
+            Statistic::where('name', 'total_classrooms')->decrement('value', $count);
+            DB::commit();
         } catch (\Exception $e) {
             return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
         }
         return $this->successResponse($response, 'Xóa phòng học thành công!');
+    }
+
+    public function exportExcel()
+    {
+        $collection = $this->classroomRepository->listWithFilter()->get();
+        try {
+            return Excel::download(new ClassroomExport($collection), 'classrooms.xlsx');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error', 500, $e->getMessage());
+        }
+    }
+
+    public function importExcel(Request $request)
+    {
+        $file = $request->file('file');
+        try {
+            Excel::import(new ClassroomImport($this->classroomRepository), $file);
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error', 422, $e->getMessage());
+        }
+        return $this->successResponse('Success', 'Import Classroom thành công !');
     }
 }

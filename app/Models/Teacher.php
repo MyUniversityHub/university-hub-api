@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Teacher extends BaseModel
 {
     protected $table = 'teachers';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'teacher_id';
     const TABLE_NAME = 'teachers';
     protected $fillable = [
         'teacher_id',

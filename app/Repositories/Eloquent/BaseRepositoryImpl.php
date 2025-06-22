@@ -60,6 +60,7 @@ class BaseRepositoryImpl implements BaseRepositoryInterface
     {
         $record = $this->find($id);
         $record->update($data);
+
         return $record;
     }
 
