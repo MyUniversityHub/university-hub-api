@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Exports\TeacherExport;
 use App\Imports\TeacherImport;
 use App\Models\Teacher;
+use App\Repositories\Contracts\MajorRepositoryInterface;
 use App\Repositories\Contracts\TeacherRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Repositories\Eloquent\MajorRepositoryImpl;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +20,8 @@ class TeacherController extends Controller
 
     public function __construct(
         public TeacherRepositoryInterface $teacherRepository,
-        public UserRepositoryInterface $userRepository
+        public UserRepositoryInterface $userRepository,
+        public MajorRepositoryInterface $majorRepository
     ) {}
 
     public function getTeacherWithUserInfo(Request $request)
@@ -37,6 +40,23 @@ class TeacherController extends Controller
         try {
             $classrooms = $this->teacherRepository->listWithFilter($request)
                 ->where(Teacher::field('active'), CLASSROOM_STATUS_ACTIVE)
+                ->with('user:id,name')
+                ->get();
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error', Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
+        }
+
+        return $this->successResponse($classrooms, 'Danh sách phòng học đang hoạt động');
+    }
+
+    public function getTeacherByMajorId(Request $request, $id)
+    {
+        $major = $this->majorRepository->find($id);
+        $departmentId = $major->department_id;
+        try {
+            $classrooms = $this->teacherRepository->listWithFilter($request)
+                ->where(Teacher::field('active'), CLASSROOM_STATUS_ACTIVE)
+                ->where('department_id', $departmentId)
                 ->with('user:id,name')
                 ->get();
         } catch (\Exception $e) {

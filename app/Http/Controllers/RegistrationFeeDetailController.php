@@ -91,13 +91,11 @@ class RegistrationFeeDetailController extends Controller
                 return $this->errorResponse('Danh sách ID không được để trống', Response::HTTP_BAD_REQUEST);
             }
 
-            dd($studentId, $feeIds);
             // Retrieve the fee details
             $feeDetails = RegistrationFeeDetail::where('student_id', $studentId)
                 ->whereIn('course_class_id', $feeIds)
                 ->get();
 
-            dd($feeDetails);
 
             if ($feeDetails->isEmpty()) {
                 return $this->errorResponse('Học phí không tồn tại hoặc đã được thanh toán', Response::HTTP_BAD_REQUEST);

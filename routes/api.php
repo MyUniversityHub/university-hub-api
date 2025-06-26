@@ -119,6 +119,7 @@ Route::group(['middleware' => ['auth:api', ROLE_PERMISSION_MIDDLEWARE]], functio
         });
         Route::group(['prefix' => 'teachers'], function () {
             Route::get('/active', [TeacherController::class, 'getTeacherActive']);
+            Route::get('/major/{id}', [TeacherController::class, 'getTeacherByMajorId']);
         });
         Route::prefix('curriculum-programs')->group(function () {
             Route::get('/', [CurriculumProgramController::class, 'index']);
@@ -156,7 +157,7 @@ Route::group(['middleware' => ['auth:api', ROLE_PERMISSION_MIDDLEWARE]], functio
         });
         Route::group(['prefix' => 'course-results'], function () {
             Route::get('/', [StudentCourseResultController::class, 'index']); // List all course classes
-            Route::get('/{id}/status', [StudentCourseResultController::class, 'getCourseResultByStatus']);
+            Route::get('/{status}/status', [StudentCourseResultController::class, 'getCourseResultByStatus']);
         });
         Route::group(['prefix' => 'registration-fee-detail'], function () {
             Route::get('/', [RegistrationFeeDetailController::class, 'index']); // List all course classes
@@ -167,6 +168,7 @@ Route::group(['middleware' => ['auth:api', ROLE_PERMISSION_MIDDLEWARE]], functio
             Route::get('/', [PaymentController::class, 'index']);
         });
         Route::prefix('curriculum-programs')->group(function () {
+            Route::get('/major/{id}', [CurriculumProgramController::class, 'getCurriculumProgramByMajor']);
             Route::get('/major/{id}', [CurriculumProgramController::class, 'getCurriculumProgramByMajor']);
         });
     });

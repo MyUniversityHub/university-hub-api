@@ -46,4 +46,5 @@ protected static array $fields = [
     {
         return $this->belongsTo(CourseClass::class, 'course_class_id');
     }
+
 }

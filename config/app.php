@@ -132,4 +132,6 @@ return [
     'basic_auth_user_name' => env('BASIC_AUTH_USER_NAME', ''),
     'basic_auth_password' => env('BASIC_AUTH_PASSWORD', ''),
 
+    'credit_hours_max' => env('CREDIT_HOURSE_MAX', 30),
+
 ];

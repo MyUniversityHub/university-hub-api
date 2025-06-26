@@ -18,4 +18,8 @@ interface StudentCourseResultRepositoryInterface extends BaseRepositoryInterface
     public function getCourseResultByStatus($studentId, $status);
 
     public function getAverageScoreByStudentId($studentId);
+
+    public function totalCreditCompleted($studentId);
+
+    public function totalCreditInProgress($studentId);
 }

@@ -34,7 +34,7 @@ class StudentCourseResultRepositoryImpl extends BaseRepositoryImpl implements St
 
     public function getClassScheduleByStudentId($studentId, $startDate, $endDate)
     {
-        return $this->model->select('courses.course_name', 'course_classes.course_class_code', 'course_classes.course_class_id', 'course_classes.weekdays', 'course_classes.lesson_start', 'course_classes.lesson_end', 'users.name as teacher_name', 'classrooms.room_name')
+        return $this->model->select('courses.course_name', 'course_classes.course_class_code', 'course_classes.course_class_id', 'course_classes.weekdays', 'course_classes.lesson_start', 'course_classes.lesson_end', 'users.name as teacher_name', 'classrooms.room_name', 'student_course_results.status')
             ->join('course_classes', 'course_classes.course_class_id', '=', 'student_course_results.course_class_id')
             ->join('courses', 'courses.course_id', '=', 'course_classes.course_id')
             ->join('teachers', 'teachers.teacher_id', '=', 'course_classes.teacher_id')
@@ -139,6 +139,26 @@ class StudentCourseResultRepositoryImpl extends BaseRepositoryImpl implements St
         if ($averageScore >= 5.0) return 1.5;
         if ($averageScore >= 4.0) return 1.0;
         return 0.0;
+    }
+
+    public function totalCreditInProgress($studentId)
+    {
+        return $this->model
+            ->join('course_classes', 'course_classes.course_class_id', '=', 'student_course_results.course_class_id')
+            ->join('courses', 'courses.course_id', '=', 'course_classes.course_id')
+            ->where('student_course_results.student_id', $studentId)
+            ->where('student_course_results.status', COURSE_RESULT_STATUS_IN_PROGRESS)
+            ->sum('courses.credit_hours');
+    }
+
+    public function totalCreditCompleted($studentId)
+    {
+        return $this->model
+            ->join('course_classes', 'course_classes.course_class_id', '=', 'student_course_results.course_class_id')
+            ->join('courses', 'courses.course_id', '=', 'course_classes.course_id')
+            ->where('student_course_results.student_id', $studentId)
+            ->where('student_course_results.status', COURSE_RESULT_STATUS_COMPLETED)
+            ->sum('courses.credit_hours');
     }
 
 

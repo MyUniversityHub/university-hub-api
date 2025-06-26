@@ -153,7 +153,16 @@ class AuthenticateController extends Controller
     {
         $user = auth('api')->user();
         try {
-            $user = $this->userRepository->update($user->id, $request->validated());
+            $data = $request->validated();
+
+            if ($request->hasFile('avatar')) {
+                $avatar = $request->file('avatar');
+                $avatarName = uniqid('avatar_') . '.' . $avatar->getClientOriginalExtension();
+                $avatarPath = $avatar->storeAs('avatars', $avatarName, 'public');
+                $data['avatar'] = $avatarPath;
+            }
+
+            $user = $this->userRepository->update($user->id, $data);
             return $this->successResponse($user, 'Thay đổi thông tin tài khoản thành công!');
         } catch (\Exception $exception) {
             return $this->errorResponse($exception->getMessage(), $exception->getCode());

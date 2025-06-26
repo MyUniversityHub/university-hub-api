@@ -76,5 +76,22 @@ class CurriculumProgramRepositoryImpl extends BaseRepositoryImpl implements Curr
             ->delete();
     }
 
+    public function getRegisteredCoursesByMajorId()
+    {
+        return $this->model
+            ->select(
+                'curriculum_programs.major_id',
+                'curriculum_programs.course_id',
+                'curriculum_programs.semester',
+                'courses.course_name',
+                'courses.course_code',
+                'courses.credit_hours',
+            )
+            ->join('courses', 'curriculum_programs.course_id', '=', 'courses.course_id')
+            ->orderBy('curriculum_programs.semester', 'asc')
+            ->orderBy('courses.course_name', 'asc')
+            ->get();
+    }
+
 
 }

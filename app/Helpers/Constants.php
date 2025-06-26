@@ -55,3 +55,9 @@ const COURSE_CLASS_STATUS_CLOSE = 3; // trạng thái đóng lớp học phần
 const COURSE_CLASS_STATUS_END = 4; // trạng thái kết thúc lớp học phần
 
 
+//COURSE RESULT
+
+const COURSE_RESULT_STATUS_IN_PROGRESS = 1; // Trạng thái đang học
+const COURSE_RESULT_STATUS_COMPLETED = 2; // Trạng thái đã học
+const COURSE_RESULT_STATUS_FAILED = 0; // Trạng thái trượt môn
+
